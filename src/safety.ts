@@ -16,11 +16,12 @@ export interface RunResult {
 async function execAll(
   ctx: ToolContext,
   router: ReturnType<ToolContext["resolveRouter"]>,
-  commands: string[]
+  commands: string[],
+  timeoutMs: number = 30000
 ): Promise<CommandResult[]> {
   const results: CommandResult[] = [];
   for (const cmd of commands) {
-    const r = await ctx.ssh.exec(router, cmd, { timeoutMs: 30000 });
+    const r = await ctx.ssh.exec(router, cmd, { timeoutMs });
     if (r.code !== 0) {
       throw new Error(`command failed (exit code ${r.code}): ${cmd}\n${r.stderr}`);
     }
@@ -40,8 +41,10 @@ export async function runTool(
     const router = ctx.resolveRouter(routerName);
     const risk = def.risk(input);
 
+    const timeoutMs = def.timeoutMs ?? 30000;
+
     if (risk === "read") {
-      const outputs = await execAll(ctx, router, def.build(input).commands);
+      const outputs = await execAll(ctx, router, def.build(input).commands, timeoutMs);
       return { ok: true, data: def.parse(outputs, input) };
     }
 
@@ -51,7 +54,7 @@ export async function runTool(
       let diff: string | undefined;
       if (def.previewCommands) {
         const pcmds = def.previewCommands(input);
-        const pout = await execAll(ctx, router, pcmds);
+        const pout = await execAll(ctx, router, pcmds, timeoutMs);
         diff = def.previewParse ? def.previewParse(pout, input) : pout.map((o) => o.stdout).join("\n");
       }
       return { ok: true, preview: { commands: built.commands, diff, warning: built.warning, risk } };
@@ -61,7 +64,7 @@ export async function runTool(
       return { ok: false, error: `router '${router.name}' is readonly; mutation blocked` };
     }
 
-    const outputs = await execAll(ctx, router, def.build(input).commands);
+    const outputs = await execAll(ctx, router, def.build(input).commands, timeoutMs);
     return { ok: true, data: def.parse(outputs, input) };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };

@@ -19,7 +19,6 @@ const wifiRadios: ToolDef = {
       if (!m) continue;
       const [, sect, opt, rawVal] = m;
       const val = rawVal.replace(/^'(.*)'$/, "$1");
-      const bucket = sect.startsWith("radio") && !opt ? devices : interfaces;
       const isIface = val === "wifi-iface" || interfaces[sect];
       const target = opt ? (sect in devices ? devices : isIface ? interfaces : devices) : (val === "wifi-iface" ? interfaces : devices);
       target[sect] = target[sect] ?? {};
@@ -46,19 +45,21 @@ const wifiSetEnabled: ToolDef = {
   previewParse: parseChanges,
 };
 
+const wifiConfigureSchema = z.object({
+  iface: z.string(),
+  ssid: z.string().optional(),
+  channel: z.string().optional(),
+  encryption: z.string().optional(),
+  key: z.string().optional(),
+  device: z.string().optional(), // for channel changes on the radio
+});
+
 const wifiConfigure: ToolDef = {
   name: "wifi_configure",
   description: "Set SSID/channel/encryption/key on a wifi interface, then reload wifi.",
-  schema: z.object({
-    iface: z.string(),
-    ssid: z.string().optional(),
-    channel: z.string().optional(),
-    encryption: z.string().optional(),
-    key: z.string().optional(),
-    device: z.string().optional(), // for channel changes on the radio
-  }),
+  schema: wifiConfigureSchema,
   risk: () => "mutate",
-  build: (i: any) => {
+  build: (i: z.infer<typeof wifiConfigureSchema>) => {
     const cmds: string[] = [];
     if (i.ssid !== undefined) cmds.push(`uci set ${sq(`wireless.${i.iface}.ssid`)}=${sq(i.ssid)}`);
     if (i.encryption !== undefined) cmds.push(`uci set ${sq(`wireless.${i.iface}.encryption`)}=${sq(i.encryption)}`);

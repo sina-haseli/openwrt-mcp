@@ -40,6 +40,8 @@ export interface ToolDef<I = any> {
   description: string;
   // zod schema for the tool's own params (NOT including confirm/router, which the runner adds)
   schema: import("zod").ZodType<I>;
+  // per-command SSH timeout override in milliseconds (defaults to 30000)
+  timeoutMs?: number;
   // risk is a function because e.g. uci_commit is "risky" for network/firewall, else "mutate"
   risk(input: I): RiskClass;
   // shell commands to execute (in order) when running/confirming

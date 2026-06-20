@@ -9,8 +9,16 @@ export function buildServer(ctx: ToolContext, tools: ToolDef[] = allTools): McpS
 
   for (const def of tools) {
     // The tool's own params, plus the runner-managed router/confirm fields.
-    const base = (def.schema as z.ZodObject<any>).shape ?? {};
-    const isRead = def.risk({} as any) === "read"; // best-effort; risk fns are param-light for read tools
+    if (!(def.schema instanceof z.ZodObject)) {
+      throw new Error(`tool '${def.name}' must use a z.object schema`);
+    }
+    const base = def.schema.shape;
+    let isRead: boolean;
+    try {
+      isRead = def.risk({} as any) === "read"; // best-effort; risk fns are param-light for read tools
+    } catch {
+      isRead = false; // fail safe: treat as non-read so confirm IS required
+    }
     const shape: Record<string, z.ZodTypeAny> = {
       ...base,
       router: z.string().optional().describe("Target router name (defaults to the configured default)."),

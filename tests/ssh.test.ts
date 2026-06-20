@@ -70,7 +70,11 @@ describe("createSshExecutor", () => {
     const connect = () => {
       const c: any = new EventEmitter();
       c.connect = () => queueMicrotask(() => c.emit("ready"));
-      c.exec = (_cmd: string, cb: any) => cb(undefined, new EventEmitter()); // never closes
+      c.exec = (_cmd: string, cb: any) => {
+        const stream: any = new EventEmitter();
+        stream.stderr = new EventEmitter();
+        cb(undefined, stream); // never emits "close" — triggers timeout
+      };
       c.end = vi.fn();
       return c;
     };

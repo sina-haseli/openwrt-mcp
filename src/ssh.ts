@@ -61,9 +61,7 @@ export function createSshExecutor(deps: SshDeps = {}): SshExecutor {
             let stdout = "";
             let stderr = "";
             stream.on("data", (d: Buffer) => (stdout += d.toString()));
-            if (stream.stderr) {
-              stream.stderr.on("data", (d: Buffer) => (stderr += d.toString()));
-            }
+            stream.stderr.on("data", (d: Buffer) => (stderr += d.toString()));
             stream.on("close", (code: number) =>
               finish(() => resolve({ stdout, stderr, code: code ?? 0 }))
             );
