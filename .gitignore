@@ -2,3 +2,5 @@ node_modules
 dist
 *.local.json
 openwrt-mcp.config.json
+test-results.json
+test_output.txt
