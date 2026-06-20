@@ -35,7 +35,8 @@ export async function runTool(
   ctx: ToolContext
 ): Promise<RunResult> {
   try {
-    const { router: routerName, confirm, ...input } = rawInput;
+    const { router: routerName, confirm, ...rawParsed } = rawInput;
+    const input = (def.schema as any)?.parse ? (def.schema as any).parse(rawParsed) : rawParsed;
     const router = ctx.resolveRouter(routerName);
     const risk = def.risk(input);
 
