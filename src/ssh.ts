@@ -55,6 +55,7 @@ export function createSshExecutor(deps: SshDeps = {}): SshExecutor {
 
         client.on("error", (err: Error) => finish(() => reject(err)));
         client.on("ready", () => {
+          if (settled) return;
           client.exec(command, (err, stream) => {
             if (err) return finish(() => reject(err));
             let stdout = "";
