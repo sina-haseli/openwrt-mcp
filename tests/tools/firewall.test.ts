@@ -38,6 +38,10 @@ describe("firewall tools", () => {
     expect(cmds).toContain("allow-x");
     expect(cmds).toContain("uci commit firewall");
     expect(cmds).toMatch(/firewall reload|fw3 reload|fw4 reload/);
+    // Regression guard: $RULE must be shell-expandable (unquoted), not literal '$RULE' in sq().
+    expect(cmds).toMatch(/uci set firewall\.\$RULE\.name='allow-x'/);
+    expect(cmds).toMatch(/uci set firewall\.\$RULE\.proto='tcp'/);
+    expect(cmds).toMatch(/uci set firewall\.\$RULE\.target='ACCEPT'/);
   });
 
   it("fw_remove_rule deletes by section name (confirmed)", async () => {

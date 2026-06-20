@@ -35,8 +35,11 @@ const fwAddRule: ToolDef = {
   }),
   risk: () => "risky",
   build: (i: any) => {
+    // `opt` is always a developer-controlled static string literal, so it must NOT be wrapped
+    // in sq() — doing so would suppress $RULE shell-variable expansion (sq uses POSIX single
+    // quotes which prevent all variable substitution inside them).
     const set = (opt: string, val?: string) =>
-      val === undefined ? null : `uci set ${sq(`firewall.$RULE.${opt}`)}=${sq(val)}`;
+      val === undefined ? null : `uci set firewall.$RULE.${opt}=${sq(val)}`;
     const lines = [
       "RULE=$(uci add firewall rule)",
       set("name", i.name),
