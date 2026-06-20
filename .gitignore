@@ -1,0 +1,4 @@
+node_modules
+dist
+*.local.json
+openwrt-mcp.config.json
