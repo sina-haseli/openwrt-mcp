@@ -1,13 +1,39 @@
 {
   "name": "openwrt-mcp",
   "version": "0.1.0",
+  "description": "MCP server for administering OpenWRT routers over SSH, with typed tools and a tiered preview/confirm safety model.",
   "type": "module",
+  "license": "MIT",
+  "author": "Sina Haseli <sina.haseli@gmail.com>",
+  "homepage": "https://github.com/sina-haseli/openwrt-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sina-haseli/openwrt-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sina-haseli/openwrt-mcp/issues"
+  },
+  "keywords": [
+    "openwrt",
+    "mcp",
+    "model-context-protocol",
+    "router",
+    "ssh",
+    "uci",
+    "network",
+    "claude",
+    "ai"
+  ],
   "engines": { "node": ">=22" },
+  "main": "dist/index.js",
   "bin": { "openwrt-mcp": "dist/index.js" },
+  "files": ["dist", "README.md", "openwrt-mcp.config.example.json"],
+  "publishConfig": { "access": "public" },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

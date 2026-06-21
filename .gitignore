@@ -5,3 +5,4 @@ openwrt-mcp.config.json
 test-results.json
 test_output.txt
 docs/
+*.tgz
